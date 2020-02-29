@@ -1,0 +1,80 @@
+swagger: "2.0"
+info:
+  title: BiblioHub
+  version: 0.0.1
+host: bibliohub.com
+basePath: /
+schemes:
+  - https
+paths:
+  /register:
+    post:
+      summary: Async check if such login is already in the db
+      consumes:
+        - application/json;charset=utf-8
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+    put:
+      summary: Add a new user to the system
+      consumes:
+        - application/json;charset=utf-8
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+  /login:
+    post:
+      summary: Login as an already registered user
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+  /logout:
+    post:
+      summary: Logout user
+      produces:
+        - text/html; charset=utf-8
+      responses:
+        200:
+          description: OK
+  /hub:
+    get:
+      summary: Show the main hub
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+    post:
+      summary: Add a new book to the list
+      consumes:
+        - application/json;charset=utf-8
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+  /file:
+    get:
+      summary: Download a file from the system
+      produces:
+        - application/pdf
+      responses:
+        200:
+          description: OK
+    post:
+      summary: Add a file to the system
+      consumes:
+        - multipart/form-data
+      produces:
+        - text/html; charset=utf-8
+      responses:
+        200:
+          description: OK

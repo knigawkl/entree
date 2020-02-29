@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  server:
+    build: ./server
+    volumes:
+      - ./server:/app
+    ports:
+      - 5000:5000
+  client:
+    build: ./client
+    volumes:
+      - ./client:/app
+    ports:
+      - 8081:80
+    depends_on:
+      - server
+  redis:
+    image: "redis:alpine"
