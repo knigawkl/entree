@@ -15,5 +15,4 @@ services:
       - 8081:80
     depends_on:
       - server
-  redis:
-    image: "redis:alpine"
+
