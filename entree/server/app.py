@@ -3,8 +3,9 @@ import jwt
 import os
 import errno
 import bcrypt
-from flask import Flask, jsonify, request, redirect, url_for, make_response, send_file, send_from_directory
+from flask import Flask, jsonify, request, redirect, url_for, make_response, send_file
 from flask_cors import CORS
+from flask_mysqldb import MySQL
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -15,6 +16,7 @@ app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'entree'
 
 CORS(app)
+mysql = MySQL(app)
 
 
 @app.route('/')
@@ -26,12 +28,12 @@ def index():
 def register():
     req = request.get_json()
     login = req['login']
-    # todo if exists taki login w userach
-    if login and db.hget(login, 'login') == login:
+
+    if login and not check_if_login_exists(login):
+        resp = jsonify('Username available')
+    else:
         resp = jsonify('Login unavailable')
         return resp
-    else:
-        resp = jsonify('Username available')
     if request.method == 'PUT':
         password, email = req['password'], req['email']
 
@@ -45,6 +47,14 @@ def register():
         db.hset(login, 'password', hashed)
         db.hset(login, 'email', email)
     return resp
+
+
+def check_if_login_exists(login: str):
+    cur = mysql.connection.cursor()
+    res = cur.execute(f"select count(*) from users where user = {login};")
+    mysql.connection.commit()
+    cur.close()
+    return res
 
 
 @app.route('/login/', methods=['POST'])
