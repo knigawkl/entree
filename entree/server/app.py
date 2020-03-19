@@ -1,19 +1,15 @@
 import datetime
 import jwt
-import redis
 import os
 import errno
 import bcrypt
 from flask import Flask, jsonify, request, redirect, url_for, make_response, send_file, send_from_directory
 from flask_cors import CORS
 from functools import wraps
-from flask_swagger_ui import get_swaggerui_blueprint
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'customerobsessed'
-db = redis.Redis(host='redis', port=6379, decode_responses=True)
-db.flushdb()  # uncomment in order to flush the database
 
 CORS(app)
 
@@ -26,8 +22,6 @@ def token_required(f):
             return jsonify({'message': 'Missing token'})
         try:
             payload = jwt.decode(token, app.config['SECRET_KEY'])
-            #if payload['user'] != db.hget(payload['user'], 'login'):
-            #    raise Exception('Login {} could not be found in the db'.format(payload['user']))
         except:
             return jsonify({'message': 'Invalid token'})
         return f(*args, **kwargs)
@@ -38,18 +32,6 @@ def token_required(f):
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('static', path)
-
-
-SWAGGER_URL = '/swagger'
-API_URL = '/static/swag.yaml'
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': 'BIBLIO-HUB'
-    }
-)
-app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 
 @app.route('/')
