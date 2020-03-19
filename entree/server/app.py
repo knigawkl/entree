@@ -12,7 +12,7 @@ app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'customerobsessed'
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'entree'
 
 CORS(app)
@@ -51,7 +51,8 @@ def register():
 
 def check_if_login_exists(login: str):
     cur = mysql.connection.cursor()
-    res = cur.execute(f"select count(*) from users where user = {login};")
+    query = f"select count(*) from users where user = '{login}';"
+    res = cur.execute(query)
     mysql.connection.commit()
     cur.close()
     return res
