@@ -7,6 +7,26 @@ from flask import Flask, jsonify, request, redirect, url_for, make_response, sen
 from flask_cors import CORS
 from flask_mysqldb import MySQL
 
+
+def check_if_login_exists(login: str):
+    cur = mysql.connection.cursor()
+    query = f"select count(*) from users where user = '{login}';"
+    cur.execute(query)
+    res = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    print(res[0])
+    return res[0]
+
+
+def insert_new_user(login: str, email: str, password: str):
+    cur = mysql.connection.cursor()
+    query = f"insert into users (user, email, password) values ({login}, {email}, {password})"
+    cur.execute(query)
+    mysql.connection.commit()
+    cur.close()
+
+
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'customerobsessed'
@@ -28,11 +48,10 @@ def index():
 def register():
     req = request.get_json()
     login = req['login']
-
-    if login and not check_if_login_exists(login):
+    if login and check_if_login_exists(login):
+        resp = jsonify('Username unavailable')
+    elif login and not check_if_login_exists(login):
         resp = jsonify('Username available')
-    else:
-        resp = jsonify('Login unavailable')
         return resp
     if request.method == 'PUT':
         password, email = req['password'], req['email']
@@ -41,21 +60,8 @@ def register():
         hashed = bcrypt.hashpw(password.encode('utf8'), salt)
         hashed = hashed.decode("utf-8")
 
-        # todo insert into users login password email values
-
-        db.hset(login, 'login', login)
-        db.hset(login, 'password', hashed)
-        db.hset(login, 'email', email)
+        insert_new_user(login=login, email=email, password=hashed)
     return resp
-
-
-def check_if_login_exists(login: str):
-    cur = mysql.connection.cursor()
-    query = f"select count(*) from users where user = '{login}';"
-    res = cur.execute(query)
-    mysql.connection.commit()
-    cur.close()
-    return res
 
 
 @app.route('/login/', methods=['POST'])
