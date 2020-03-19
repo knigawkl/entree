@@ -9,6 +9,10 @@ from flask_cors import CORS
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'customerobsessed'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'entree'
 
 CORS(app)
 
@@ -22,6 +26,7 @@ def index():
 def register():
     req = request.get_json()
     login = req['login']
+    # todo if exists taki login w userach
     if login and db.hget(login, 'login') == login:
         resp = jsonify('Login unavailable')
         return resp
@@ -33,7 +38,8 @@ def register():
         salt = bcrypt.gensalt()
         hashed = bcrypt.hashpw(password.encode('utf8'), salt)
         hashed = hashed.decode("utf-8")
-        print(hashed)
+
+        # todo insert into users login password email values
 
         db.hset(login, 'login', login)
         db.hset(login, 'password', hashed)
@@ -46,6 +52,7 @@ def login():
     auth = request.get_json()
     login, password = auth['login'], auth['password']
 
+    # todo get password from db where
     if auth and bcrypt.checkpw(password.encode('utf8'), db.hget(login, 'password').encode('utf8')):
         token = jwt.encode({'user': auth['login'],
                             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=50)},
@@ -67,6 +74,7 @@ def hub():
     if request.method == 'POST':
         post_data = request.get_json()
 
+        # todo dodawanie rezerwacji do db
         id = str(post_data.get('id'))
         db.hset(id, 'id', id)
         db.hset(id, 'title', post_data.get('title'))
@@ -76,11 +84,12 @@ def hub():
         db.sadd('books', id)
         response_object['message'] = 'Book added!'
     else:
-        response_object['books'] = get_books()
+        response_object['books'] = get_entrees()
     return jsonify(response_object)
 
 
-def get_books():
+def get_entrees():
+    # todo select * from entrees
     books = []
     db_resp = db.smembers('books')
     for member in db_resp:
@@ -91,7 +100,7 @@ def get_books():
     return books
 
 
-def remove_book(book_id):
+def remove_entree(book_id):
     db_resp = db.smembers('books')
     for member in db_resp:
         if member == book_id:
@@ -102,13 +111,13 @@ def remove_book(book_id):
 
 
 @app.route('/hub/<book_id>', methods=['PUT', 'DELETE'])
-def single_book(book_id):
+def entree(book_id):
     response_object = {'status': 'success'}
     if request.method == 'PUT':
         id = book_id
         response_object['message'] = 'File added!'
     if request.method == 'DELETE':
-        remove_book(book_id)
+        remove_entree(book_id)
         response_object['message'] = 'Book removed!'
     return jsonify(response_object)
 
