@@ -5,33 +5,12 @@ import errno
 import bcrypt
 from flask import Flask, jsonify, request, redirect, url_for, make_response, send_file, send_from_directory
 from flask_cors import CORS
-from functools import wraps
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'customerobsessed'
 
 CORS(app)
-
-
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        if not token:
-            return jsonify({'message': 'Missing token'})
-        try:
-            payload = jwt.decode(token, app.config['SECRET_KEY'])
-        except:
-            return jsonify({'message': 'Invalid token'})
-        return f(*args, **kwargs)
-
-    return decorated
-
-
-@app.route('/static/<path:path>')
-def send_static(path):
-    return send_from_directory('static', path)
 
 
 @app.route('/')
@@ -126,9 +105,7 @@ def remove_book(book_id):
 def single_book(book_id):
     response_object = {'status': 'success'}
     if request.method == 'PUT':
-        #post_data = request.get_json()
         id = book_id
-
         response_object['message'] = 'File added!'
     if request.method == 'DELETE':
         remove_book(book_id)
@@ -141,7 +118,7 @@ def save_file(file, id):
     if not os.path.exists(os.path.dirname(path)):
         try:
             os.makedirs(os.path.dirname(path))
-        except OSError as exc:  # Guard against race condition
+        except OSError as exc:
             if exc.errno != errno.EEXIST:
                 raise
     file.save(path)
@@ -149,7 +126,6 @@ def save_file(file, id):
 
 
 @app.route('/file/<book_id>/<filename>', methods=['POST', 'GET', 'DELETE'])
-# @token_required
 def file(book_id, filename):
     if request.method == 'POST':
         file = request.files['file']
