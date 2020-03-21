@@ -33,7 +33,7 @@ def get_pass(login: str):
     res = cur.fetchone()
     mysql.connection.commit()
     cur.close()
-    return res[0]
+    return res[0] if res else None
 
 
 app = Flask(__name__)
@@ -78,11 +78,9 @@ def login():
     auth = request.get_json()
     login, password = auth['login'], auth['password']
 
-    # todo get password from db where
     db_pass = get_pass(login=login)
-    print(db_pass)
 
-    if auth and bcrypt.checkpw(password.encode('utf8'), db_pass.encode('utf8')):
+    if auth and db_pass and bcrypt.checkpw(password.encode('utf8'), db_pass.encode('utf8')):
         token = jwt.encode({'user': auth['login'],
                             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=50)},
                            app.config['SECRET_KEY'])
