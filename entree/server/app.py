@@ -15,16 +15,25 @@ def check_if_login_exists(login: str):
     res = cur.fetchone()
     mysql.connection.commit()
     cur.close()
-    print(res[0])
     return res[0]
 
 
 def insert_new_user(login: str, email: str, password: str):
     cur = mysql.connection.cursor()
-    query = f"insert into users (user, email, password) values ({login}, {email}, {password})"
+    query = f"insert into users (user, email, password) values ('{login}', '{email}', '{password}')"
     cur.execute(query)
     mysql.connection.commit()
     cur.close()
+
+
+def get_pass(login: str):
+    cur = mysql.connection.cursor()
+    query = f"select password from users where user = '{login}';"
+    cur.execute(query)
+    res = cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+    return res[0]
 
 
 app = Flask(__name__)
@@ -50,9 +59,9 @@ def register():
     login = req['login']
     if login and check_if_login_exists(login):
         resp = jsonify('Username unavailable')
+        return resp
     elif login and not check_if_login_exists(login):
         resp = jsonify('Username available')
-        return resp
     if request.method == 'PUT':
         password, email = req['password'], req['email']
 
@@ -70,7 +79,10 @@ def login():
     login, password = auth['login'], auth['password']
 
     # todo get password from db where
-    if auth and bcrypt.checkpw(password.encode('utf8'), db.hget(login, 'password').encode('utf8')):
+    db_pass = get_pass(login=login)
+    print(db_pass)
+
+    if auth and bcrypt.checkpw(password.encode('utf8'), db_pass.encode('utf8')):
         token = jwt.encode({'user': auth['login'],
                             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=50)},
                            app.config['SECRET_KEY'])
