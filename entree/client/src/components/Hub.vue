@@ -6,12 +6,12 @@
 
         <button type="button"
                 class="btn btn-secondary btn-sm"
-                v-b-modal.book-modal>Add Book</button>
+                v-b-modal.entree-modal>Add Entree</button>
         <br><br>
         <table class="table table-hover">
           <thead>
             <tr>
-              <th scope="col" style="width: 40%">Title</th>
+              <th scope="col" style="width: 40%">Name</th>
               <th scope="col" style="width: 20%">PDF File</th>
               <th scope="col" style="width: 15%">Author</th>
               <th scope="col" style="width: 5%">Year</th>
@@ -19,31 +19,31 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(book, index) in books" :key="index">
-              <td>{{ book.title }}</td>
+            <tr v-for="(entree, index) in entrees" :key="index">
+              <td>{{ entree.title }}</td>
               <td>
-                <div v-for="(file, index) in book.files" :key="index">
-                  <b-link @click="downloadFile(book.id, file)">{{file}}</b-link>
+                <div v-for="(file, index) in entree.files" :key="index">
+                  <b-link @click="downloadFile(entree.id, file)">{{file}}</b-link>
                   <img src="../assets/trash.png"
                        width="10%"
-                       v-on:click="deleteFile(book.id, file)"
+                       v-on:click="deleteFile(entree.id, file)"
                        data-cy="trash">
                   <br>
                 </div>
               </td>
-              <td>{{ book.author }}</td>
-              <td>{{ book.year }}</td>
+              <td>{{ entree.author }}</td>
+              <td>{{ entree.year }}</td>
               <td>
                 <div class="btn-group" role="group">
                   <button type="button"
                           class="btn btn-light btn-sm"
-                          v-b-modal.book-update-modal
-                          @click="editBook(book)">
+                          v-b-modal.entree-update-modal
+                          @click="editEntree(entree)">
                     Add pdf
                   </button>
                   <button type="button"
                           class="btn btn-danger btn-sm"
-                          @click="onDeleteBook(book)">
+                          @click="onDeleteEntree(entree)">
                     Delete
                   </button>
                 </div>
@@ -54,9 +54,9 @@
       </div>
     </div>
 
-    <b-modal ref="addBookModal"
-             id="book-modal"
-             title="Add a new book"
+    <b-modal ref="addEntreeModal"
+             id="entree-modal"
+             title="Add a new entree"
              hide-footer>
       <b-form @submit="onSubmitAdd" @reset="onReset" class="w-100">
         <b-form-group id="form-title-group"
@@ -64,7 +64,7 @@
                     label-for="form-title-input">
           <b-form-input id="form-title-input"
                         type="text"
-                        v-model="addBookForm.title"
+                        v-model="addEntreeForm.title"
                         required
                         placeholder="Enter title">
           </b-form-input>
@@ -74,7 +74,7 @@
                       label-for="form-author-input">
           <b-form-input id="form-author-input"
                           type="text"
-                          v-model="addBookForm.author"
+                          v-model="addEntreeForm.author"
                           required
                           placeholder="Enter author">
           </b-form-input>
@@ -84,14 +84,14 @@
                       label-for="form-year-input">
           <b-form-input id="form-year-input"
                           type="text"
-                          v-model="addBookForm.year"
+                          v-model="addEntreeForm.year"
                           placeholder="Enter year">
           </b-form-input>
         </b-form-group>
         <b-form-group>
           <b-form-file
             accept=".pdf"
-            v-model="addBookForm.file"
+            v-model="addEntreeForm.file"
             :state=null
             placeholder="Choose a file or drop it here..."
             drop-placeholder="Drop file here..."
@@ -102,8 +102,8 @@
       </b-form>
     </b-modal>
 
-    <b-modal ref="editBookModal"
-             id="book-update-modal"
+    <b-modal ref="editEntreeModal"
+             id="entree-update-modal"
              title="Add PDF file"
              hide-footer>
       <b-form @submit="onSubmitAddFile" @reset="onResetAddFile" class="w-100">
@@ -134,8 +134,8 @@ import Alert from './Alert.vue';
 export default {
   data() {
     return {
-      books: [],
-      addBookForm: {
+      entrees: [],
+      addEntreeForm: {
         id: '',
         title: '',
         author: '',
@@ -153,13 +153,13 @@ export default {
     alert: Alert,
   },
   methods: {
-    deleteFile(bookId, filename) {
+    deleteFile(entreeId, filename) {
       const token = localStorage.getItem('access_token');
-      axios.delete(`http://localhost:5000/file/${bookId}/${filename}`, {
+      axios.delete(`http://localhost:5000/file/${entreeId}/${filename}`, {
         headers: { Authorization: `${token}` },
       })
         .then(() => {
-          this.getBooks();
+          this.getEntrees();
           this.message = 'File deleted!';
           this.showMessage = true;
         })
@@ -168,11 +168,11 @@ export default {
           this.showMessage = true;
         });
     },
-    submitFile(file, bookId) {
+    submitFile(file, entreeId) {
       const formData = new FormData();
       formData.append('file', file);
       const token = localStorage.getItem('access_token');
-      axios.post(`http://localhost:5000/file/${bookId}/new`, formData,
+      axios.post(`http://localhost:5000/file/${entreeId}/new`, formData,
         { headers: { 'Content-Type': 'multipart/form-data', Authorization: `${token}` } })
         .then(() => {
           this.message = 'File added!';
@@ -183,9 +183,9 @@ export default {
           this.showMessage = true;
         });
     },
-    downloadFile(bookId, filename) {
+    downloadFile(entreeId, filename) {
       const token = localStorage.getItem('access_token');
-      axios.get(`http://localhost:5000/file/${bookId}/${filename}`, {
+      axios.get(`http://localhost:5000/file/${entreeId}/${filename}`, {
         responseType: 'arraybuffer',
         headers: { 'Content-Type': 'application/pdf', Authorization: `${token}` },
       })
@@ -200,34 +200,34 @@ export default {
           this.showMessage = true;
         });
     },
-    getBooks() {
+    getEntrees() {
       const path = 'http://localhost:5000/hub/';
       axios.get(path)
         .then((res) => {
-          this.books = res.data.books;
+          this.entrees = res.data.entrees;
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.error(error);
         });
     },
-    addFile(payload, bookID) {
-      const path = `http://localhost:5000/hub/${bookID}`;
+    addFile(payload, entreeID) {
+      const path = `http://localhost:5000/hub/${entreeID}`;
       axios.put(path, payload)
         .then(() => {
-          this.getBooks();
+          this.getEntrees();
           this.message = 'File added!';
           this.showMessage = true;
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.error(error);
-          this.getBooks();
+          this.getEntrees();
         });
     },
     onSubmitAddFile(evt) {
       evt.preventDefault();
-      this.$refs.editBookModal.hide();
+      this.$refs.editEntreeModal.hide();
       const payload = {
         id: this.updateForm.id,
         file: this.updateForm.file.name,
@@ -237,76 +237,76 @@ export default {
     },
     onResetAddFile(evt) {
       evt.preventDefault();
-      this.$refs.editBookModal.hide();
+      this.$refs.editEntreeModal.hide();
       this.initForm();
-      this.getBooks();
+      this.getEntrees();
     },
-    editBook(book) {
-      this.updateForm = book;
+    editEntree(entree) {
+      this.updateForm = entree;
     },
-    removeBook(bookID) {
-      const path = `http://localhost:5000/hub/${bookID}`;
+    removeEntree(entreeID) {
+      const path = `http://localhost:5000/hub/${entreeID}`;
       axios.delete(path)
         .then(() => {
-          this.getBooks();
-          this.message = 'Book removed!';
+          this.getEntrees();
+          this.message = 'Entree removed!';
           this.showMessage = true;
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.error(error);
-          this.getBooks();
+          this.getEntrees();
         });
     },
-    onDeleteBook(book) {
-      this.removeBook(book.id);
+    onDeleteEntree(entree) {
+      this.removeEntree(entree.id);
     },
     initForm() {
-      this.addBookForm.title = '';
-      this.addBookForm.author = '';
-      this.addBookForm.year = '';
-      this.addBookForm.file = '';
+      this.addEntreeForm.title = '';
+      this.addEntreeForm.author = '';
+      this.addEntreeForm.year = '';
+      this.addEntreeForm.file = '';
       this.updateForm.id = '';
       this.updateForm.title = '';
       this.updateForm.author = '';
       this.updateForm.year = '';
       this.updateForm.file = '';
     },
-    addBook(payload) {
+    addEntree(payload) {
       const path = 'http://localhost:5000/hub/';
       axios.post(path, payload)
         .then(() => {
-          this.getBooks();
-          this.message = 'Book added!';
+          this.getEntrees();
+          this.message = 'Entree added!';
           this.showMessage = true;
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
-          this.getBooks();
+          this.getEntrees();
         });
     },
     onSubmitAdd(evt) {
       evt.preventDefault();
-      this.$refs.addBookModal.hide();
+      this.$refs.addEntreeModal.hide();
       const payload = {
         id: Math.random().toString(36).substring(2, 15),
-        title: this.addBookForm.title,
-        author: this.addBookForm.author,
-        year: this.addBookForm.year,
+        title: this.addEntreeForm.title,
+        author: this.addEntreeForm.author,
+        year: this.addEntreeForm.year,
       };
-      this.submitFile(this.addBookForm.file, payload.id);
-      this.addBook(payload);
+      this.submitFile(this.addEntreeForm.file, payload.id);
+      this.addEntree(payload);
       this.initForm();
     },
     onReset(evt) {
       evt.preventDefault();
-      this.$refs.addBookModal.hide();
+      this.$refs.addEntreeModal.hide();
       this.initForm();
     },
   },
   created() {
-    this.getBooks();
+    this.getEntrees();
   },
 };
 </script>
