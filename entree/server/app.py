@@ -59,6 +59,15 @@ def delete_entree(id: int):
     cur.close()
 
 
+def add_entree(name: str, date: str):
+    cur = mysql.connection.cursor()
+    query = f"insert into entrees (name, date) values ('{name}', '{date}')"
+    cur.execute(query)
+    cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
+
+
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'customerobsessed'
@@ -123,15 +132,7 @@ def hub():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        print(post_data)
-        # todo dodawanie rezerwacji do db
-        # id = str(post_data.get('id'))
-        # db.hset(id, 'id', id)
-        # db.hset(id, 'title', post_data.get('title'))
-        # db.hset(id, 'author', post_data.get('author'))
-        # db.hset(id, 'year', post_data.get('year'))
-
-        # db.sadd('entrees', id)
+        add_entree(name=post_data["name"], date=post_data["date"])
         response_object['message'] = 'Entree added!'
     else:
         response_object['entrees'] = get_entrees()
