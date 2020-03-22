@@ -28,7 +28,7 @@ def insert_new_user(login: str, email: str, password: str):
 
 def get_pass(login: str):
     cur = mysql.connection.cursor()
-    query = f"select password from users where user = '{login}';"
+    query = f"select password from users where user = '{login}'"
     cur.execute(query)
     res = cur.fetchone()
     mysql.connection.commit()
@@ -48,6 +48,15 @@ def get_entrees():
         entree_dict = {"id": row[0], "name": row[1], "files": "", "date": str(row[2])}
         entrees.append(entree_dict)
     return entrees
+
+
+def delete_entree(id: int):
+    cur = mysql.connection.cursor()
+    query = f"delete from entrees where id = {id}"
+    cur.execute(query)
+    cur.fetchone()
+    mysql.connection.commit()
+    cur.close()
 
 
 app = Flask(__name__)
@@ -114,40 +123,30 @@ def hub():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-
+        print(post_data)
         # todo dodawanie rezerwacji do db
-        id = str(post_data.get('id'))
-        db.hset(id, 'id', id)
-        db.hset(id, 'title', post_data.get('title'))
-        db.hset(id, 'author', post_data.get('author'))
-        db.hset(id, 'year', post_data.get('year'))
+        # id = str(post_data.get('id'))
+        # db.hset(id, 'id', id)
+        # db.hset(id, 'title', post_data.get('title'))
+        # db.hset(id, 'author', post_data.get('author'))
+        # db.hset(id, 'year', post_data.get('year'))
 
-        db.sadd('books', id)
-        response_object['message'] = 'Book added!'
+        # db.sadd('entrees', id)
+        response_object['message'] = 'Entree added!'
     else:
         response_object['entrees'] = get_entrees()
     return jsonify(response_object)
 
 
-def remove_entree(book_id):
-    db_resp = db.smembers('books')
-    for member in db_resp:
-        if member == book_id:
-            db.hdel(member, 'id', 'title', 'author', 'year', 'file')
-            db.srem('books', member)
-            return True
-    return False
-
-
-@app.route('/hub/<book_id>', methods=['PUT', 'DELETE'])
-def entree(book_id):
+@app.route('/hub/<id>', methods=['PUT', 'DELETE'])
+def entree(id):
     response_object = {'status': 'success'}
     if request.method == 'PUT':
-        id = book_id
+        id = id
         response_object['message'] = 'File added!'
     if request.method == 'DELETE':
-        remove_entree(book_id)
-        response_object['message'] = 'Book removed!'
+        delete_entree(id=id)
+        response_object['message'] = 'Entree removed!'
     return jsonify(response_object)
 
 

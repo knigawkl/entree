@@ -19,7 +19,7 @@
           </thead>
           <tbody>
             <tr v-for="(entree, index) in entrees" :key="index">
-              <td>{{ entree.title }}</td>
+              <td>{{ entree.name }}</td>
               <td>
                 <div v-for="(file, index) in entree.files" :key="index">
                   <b-link @click="downloadFile(entree.id, file)">{{file}}</b-link>
@@ -30,8 +30,7 @@
                   <br>
                 </div>
               </td>
-              <td>{{ entree.author }}</td>
-              <td>{{ entree.year }}</td>
+              <td>{{ entree.date }}</td>
               <td>
                 <div class="btn-group" role="group">
                   <button type="button"
@@ -59,35 +58,26 @@
              hide-footer>
       <b-form @submit="onSubmitAdd" @reset="onReset" class="w-100">
         <b-form-group id="form-title-group"
-                    label="Title:"
+                    label="Name"
                     label-for="form-title-input">
           <b-form-input id="form-title-input"
                         type="text"
-                        v-model="addEntreeForm.title"
+                        v-model="addEntreeForm.name"
                         required
-                        placeholder="Enter title">
+                        placeholder="Enter name">
           </b-form-input>
         </b-form-group>
         <b-form-group id="form-author-group"
-                      label="Author:"
+                      label="Date"
                       label-for="form-author-input">
           <b-form-input id="form-author-input"
-                          type="text"
-                          v-model="addEntreeForm.author"
+                          type="date"
+                          v-model="addEntreeForm.date"
                           required
                           placeholder="Enter author">
           </b-form-input>
         </b-form-group>
-        <b-form-group id="form-year-group"
-                      label="Year:"
-                      label-for="form-year-input">
-          <b-form-input id="form-year-input"
-                          type="text"
-                          v-model="addEntreeForm.year"
-                          placeholder="Enter year">
-          </b-form-input>
-        </b-form-group>
-        <b-form-group>
+        <b-form-group label="File">
           <b-form-file
             accept=".pdf"
             v-model="addEntreeForm.file"
@@ -136,9 +126,8 @@ export default {
       entrees: [],
       addEntreeForm: {
         id: '',
-        title: '',
-        author: '',
-        year: '',
+        name: '',
+        date: '',
         file: null,
       },
       updateForm: {
@@ -261,14 +250,12 @@ export default {
       this.removeEntree(entree.id);
     },
     initForm() {
-      this.addEntreeForm.title = '';
-      this.addEntreeForm.author = '';
-      this.addEntreeForm.year = '';
+      this.addEntreeForm.name = '';
+      this.addEntreeForm.date = '';
       this.addEntreeForm.file = '';
       this.updateForm.id = '';
-      this.updateForm.title = '';
-      this.updateForm.author = '';
-      this.updateForm.year = '';
+      this.updateForm.name = '';
+      this.updateForm.date = '';
       this.updateForm.file = '';
     },
     addEntree(payload) {
@@ -289,13 +276,11 @@ export default {
       evt.preventDefault();
       this.$refs.addEntreeModal.hide();
       const payload = {
-        id: Math.random().toString(36).substring(2, 15),
-        title: this.addEntreeForm.title,
-        author: this.addEntreeForm.author,
-        year: this.addEntreeForm.year,
+        name: this.addEntreeForm.name,
+        date: this.addEntreeForm.date,
       };
-      this.submitFile(this.addEntreeForm.file, payload.id);
       this.addEntree(payload);
+      // this.submitFile(this.addEntreeForm.file, payload.id);
       this.initForm();
     },
     onReset(evt) {
