@@ -13,8 +13,7 @@
             <tr>
               <th scope="col" style="width: 40%">Name</th>
               <th scope="col" style="width: 20%">PDF File</th>
-              <th scope="col" style="width: 15%">Author</th>
-              <th scope="col" style="width: 5%">Year</th>
+              <th scope="col" style="width: 15%">Date</th>
               <th style="width: 20%"/>
             </tr>
           </thead>

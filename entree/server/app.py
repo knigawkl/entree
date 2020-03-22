@@ -36,6 +36,20 @@ def get_pass(login: str):
     return res[0] if res else None
 
 
+def get_entrees():
+    entrees = []
+    cur = mysql.connection.cursor()
+    query = f"select * from entrees"
+    cur.execute(query)
+    res = cur.fetchall()
+    mysql.connection.commit()
+    cur.close()
+    for row in res:
+        entree_dict = {"id": row[0], "name": row[1], "files": "", "date": str(row[2])}
+        entrees.append(entree_dict)
+    return entrees
+
+
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'customerobsessed'
@@ -111,20 +125,8 @@ def hub():
         db.sadd('books', id)
         response_object['message'] = 'Book added!'
     else:
-        response_object['books'] = get_entrees()
+        response_object['entrees'] = get_entrees()
     return jsonify(response_object)
-
-
-def get_entrees():
-    # todo select * from entrees
-    books = []
-    db_resp = db.smembers('books')
-    for member in db_resp:
-        files = db.lrange(f'_{member}', 0, -1)
-        book_dict = {'id': member, 'title': db.hget(member, 'title'), 'author': db.hget(member, 'author'),
-                     'year': db.hget(member, 'year'), 'files': files}
-        books.append(book_dict)
-    return books
 
 
 def remove_entree(book_id):
