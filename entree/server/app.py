@@ -54,18 +54,20 @@ def delete_entree(id: int):
     cur = mysql.connection.cursor()
     query = f"delete from entrees where id = {id}"
     cur.execute(query)
-    cur.fetchone()
     mysql.connection.commit()
     cur.close()
 
 
 def add_entree(name: str, date: str):
     cur = mysql.connection.cursor()
-    query = f"insert into entrees (name, date) values ('{name}', '{date}')"
-    cur.execute(query)
-    cur.fetchone()
+    insert = f"insert into entrees (name, date) values ('{name}', '{date}')"
+    select = f"select id from entrees where name = '{name}'"
+    cur.execute(insert)
+    cur.execute(select)
+    res = cur.fetchone()
     mysql.connection.commit()
     cur.close()
+    return res[0]
 
 
 app = Flask(__name__)
@@ -132,8 +134,8 @@ def hub():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        add_entree(name=post_data["name"], date=post_data["date"])
-        response_object['message'] = 'Entree added!'
+        id = add_entree(name=post_data["name"], date=post_data["date"])
+        response_object["id"] = id
     else:
         response_object['entrees'] = get_entrees()
     return jsonify(response_object)
@@ -160,6 +162,7 @@ def save_file(file, id):
             if exc.errno != errno.EEXIST:
                 raise
     file.save(path)
+    # todo saving filepath
     db.lpush(f'_{id}', file.filename)
 
 

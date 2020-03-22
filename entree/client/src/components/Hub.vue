@@ -261,10 +261,12 @@ export default {
     addEntree(payload) {
       const path = 'http://localhost:5000/hub/';
       axios.post(path, payload)
-        .then(() => {
+        .then((response) => {
+          const id = response;
           this.getEntrees();
           this.message = 'Entree added!';
           this.showMessage = true;
+          return id;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -280,7 +282,7 @@ export default {
         date: this.addEntreeForm.date,
       };
       this.addEntree(payload);
-      // this.submitFile(this.addEntreeForm.file, payload.id);
+      // this.submitFile(this.addEntreeForm.file);
       this.initForm();
     },
     onReset(evt) {
