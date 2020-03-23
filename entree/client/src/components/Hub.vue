@@ -59,22 +59,22 @@
       <b-form @submit="onSubmitAdd" @reset="onReset" class="w-100">
         <b-form-group id="form-title-group"
                     label="Name"
-                    label-for="form-title-input">
-          <b-form-input id="form-title-input"
+                    label-for="form-name-input">
+          <b-form-input id="form-name-input"
                         type="text"
                         v-model="addEntreeForm.name"
                         required
                         placeholder="Enter name">
           </b-form-input>
         </b-form-group>
-        <b-form-group id="form-author-group"
+        <b-form-group id="form-date-group"
                       label="Date"
-                      label-for="form-author-input">
-          <b-form-input id="form-author-input"
+                      label-for="form-date-input">
+          <b-form-input id="form-date-input"
                           type="date"
                           v-model="addEntreeForm.date"
                           required
-                          placeholder="Enter author">
+                          placeholder="Enter date">
           </b-form-input>
         </b-form-group>
         <b-form-group label="File">
@@ -281,8 +281,8 @@ export default {
         name: this.addEntreeForm.name,
         date: this.addEntreeForm.date,
       };
-      this.addEntree(payload);
-      // this.submitFile(this.addEntreeForm.file);
+      const id = this.addEntree(payload);
+      this.submitFile(this.addEntreeForm.file, id);
       this.initForm();
     },
     onReset(evt) {
