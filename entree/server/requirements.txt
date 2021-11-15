@@ -1,6 +1,6 @@
 wheel==0.30.0
 Flask_Cors==3.0.8
-pip==19.3.1
+pip==21.1
 Flask==1.1.1
 setuptools==39.0.1
 pyjwt
